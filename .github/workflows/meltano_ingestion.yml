@@ -13,8 +13,9 @@ jobs:
     env:
       S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
       S3_REGION: ${{ secrets.S3_REGION }}
-      S3_ACCESS_KEY_ID: ${{ secrets.S3_ACCESS_KEY_ID }}
-      S3_SECRET_ACCESS_KEY: ${{ secrets.S3_SECRET_ACCESS_KEY }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.S3_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.S3_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: ${{ secrets.S3_REGION }}
       TAP_STRIPE_CLIENT_SECRET: ${{ secrets.TAP_STRIPE_CLIENT_SECRET }}
       TAP_STRIPE_ACCOUNT_ID: ${{ secrets.TAP_STRIPE_ACCOUNT_ID }}
 
@@ -39,6 +40,7 @@ jobs:
         run: |
           python -m venv .venv
           .venv/bin/pip install --upgrade pip
+          .venv/bin/pip install meltano
           .venv/bin/pip install -r requirements-meltano.txt
 
       - name: Install Meltano plugins
