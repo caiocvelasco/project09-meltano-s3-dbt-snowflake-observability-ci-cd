@@ -29,19 +29,32 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install dependencies
+      - name: Cache pip
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Create and activate virtual environment
         run: |
-          python -m pip install --upgrade pip
+          python -m venv .venv
+          # Activate venv for the rest of the session
+          source .venv/bin/activate
+          pip install --upgrade pip
           pip install -r ingestion/requirements.txt
 
       - name: Run S3 File Existence Check
         run: |
+          source .venv/bin/activate
           echo "==== Running S3 file existence check ===="
           cd ingestion/observability
           python 01_check_s3_files.py
 
       - name: Run S3 Schema Drift Check
         run: |
+          source .venv/bin/activate
           echo "==== Running Stripe schema drift check ===="
           cd ingestion/observability
           python 02_check_s3_schema.py
