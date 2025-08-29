@@ -2,12 +2,12 @@ name: Meltano Ingestion
 
 on:
   schedule:
-    # Run daily at 23:00 UTC
+    # Run every day at 23:00 UTC
     - cron: "0 23 * * *"
   workflow_dispatch:
 
 jobs:
-  meltano-ingest:
+  meltano-ingestion:
     runs-on: ubuntu-latest
 
     env:
@@ -22,7 +22,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Set up Python
+      - name: Set up Python 3.11
         uses: actions/setup-python@v4
         with:
           python-version: "3.11"
@@ -35,13 +35,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-
 
-      - name: Install Meltano
+      - name: Create virtual environment and install dependencies
         run: |
           python -m venv .venv
           .venv/bin/pip install --upgrade pip
-          .venv/bin/pip install meltano
+          .venv/bin/pip install -r requirements.txt
 
       - name: Run Meltano Ingestion
+        working-directory: ingestion
         run: |
-          echo "==== Starting Meltano ingestion ===="
           .venv/bin/meltano run tap-stripe target-s3
