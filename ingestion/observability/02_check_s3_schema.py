@@ -15,14 +15,20 @@ import csv
 from io import StringIO
 import os.path as op
 
-# Load environment variables from .env
+# Load environment variables from .env (only for local testing; GitHub Actions passes them directly)
 load_dotenv()
 
+# S3 configuration from environment variables
 S3_BUCKET = os.getenv("S3_BUCKET_NAME")
 S3_PREFIX = os.getenv("S3_PREFIX", "raw/stripe/")
-AWS_REGION = os.getenv("AWS_REGION")
-AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
-AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+
+# Boto3 S3 client using secrets / env vars
+s3 = boto3.client(
+    "s3",
+    region_name=os.getenv("S3_REGION"),
+    aws_access_key_id=os.getenv("S3_ACCESS_KEY_ID"),
+    aws_secret_access_key=os.getenv("S3_SECRET_ACCESS_KEY"),
+)
 
 # Expected fields per Stripe stream (business requirement)
 # Nested objects will be flattened in CSV as field__subfield
@@ -35,19 +41,9 @@ REQUIRED_BY_STREAM = {
 
 DEFAULT_REQUIRED = ["id", "created"]
 
-# Create S3 client
-s3 = boto3.client(
-    "s3",
-    region_name=AWS_REGION,
-    aws_access_key_id=AWS_ACCESS_KEY_ID,
-    aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
-)
-
 def check_stripe_json_per_csv_stream(file_bytes, expected_stripe_fields, s3_filename):
     """
     Validate that a JSON file (representing a Stripe stream CSV ingestion) contains all required fields.
-    In JSON, a Stripe object may look like:
-      {"id": "ch_123", "amount": 1000, "payment_method_details": {"card": {"brand": "visa", "last4": "4242"}}}
     Returns True if all required fields are present, False otherwise.
     """
     stripe_entries = json.loads(file_bytes)
