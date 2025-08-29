@@ -1,3 +1,8 @@
+# Core Meltano orchestration
 meltano
-tap-stripe
-target-s3-csv
+
+# AWS & S3 support for scripts / observability
+boto3
+
+# Load environment variables from .env
+python-dotenv

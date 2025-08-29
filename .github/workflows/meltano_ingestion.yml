@@ -40,7 +40,6 @@ jobs:
           python -m venv .venv
           .venv/bin/pip install --upgrade pip
           .venv/bin/pip install -r requirements-meltano.txt
-          .venv/bin/pip install meltano
 
       - name: Install Meltano plugins
         working-directory: ingestion
