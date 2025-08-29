@@ -31,16 +31,15 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements-meltano.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
 
-      - name: Create virtual environment and install dependencies
+      - name: Create virtual environment and install Meltano dependencies
         run: |
           python -m venv .venv
           .venv/bin/pip install --upgrade pip
-          .venv/bin/pip install meltano
-          .venv/bin/pip install -r requirements.txt
+          .venv/bin/pip install -r requirements-meltano.txt
 
       - name: Run Meltano Ingestion
         working-directory: ingestion
