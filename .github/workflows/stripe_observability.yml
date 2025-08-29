@@ -37,24 +37,18 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-
 
-      - name: Create and activate virtual environment
+      - name: Create virtual environment and install dependencies
         run: |
           python -m venv .venv
-          # Activate venv for the rest of the session
-          source .venv/bin/activate
-          pip install --upgrade pip
-          pip install -r ingestion/requirements.txt
+          .venv/bin/pip install --upgrade pip
+          .venv/bin/pip install -r ingestion/requirements.txt
 
       - name: Run S3 File Existence Check
         run: |
-          source .venv/bin/activate
           echo "==== Running S3 file existence check ===="
-          cd ingestion/observability
-          python 01_check_s3_files.py
+          .venv/bin/python ingestion/observability/01_check_s3_files.py
 
       - name: Run S3 Schema Drift Check
         run: |
-          source .venv/bin/activate
           echo "==== Running Stripe schema drift check ===="
-          cd ingestion/observability
-          python 02_check_s3_schema.py
+          .venv/bin/python ingestion/observability/02_check_s3_schema.py
