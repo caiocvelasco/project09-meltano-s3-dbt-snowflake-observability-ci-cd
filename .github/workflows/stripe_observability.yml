@@ -1,0 +1,47 @@
+name: Stripe Observability
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  check-schema:
+    runs-on: ubuntu-latest
+
+    env:
+      # Map secrets to environment variables
+      S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
+      S3_REGION: ${{ secrets.S3_REGION }}
+      S3_ACCESS_KEY_ID: ${{ secrets.S3_ACCESS_KEY_ID }}
+      S3_SECRET_ACCESS_KEY: ${{ secrets.S3_SECRET_ACCESS_KEY }}
+      TAP_STRIPE_CLIENT_SECRET: ${{ secrets.TAP_STRIPE_CLIENT_SECRET }}
+      TAP_STRIPE_ACCOUNT_ID: ${{ secrets.TAP_STRIPE_ACCOUNT_ID }}
+      OBS_STREAMS: ${{ secrets.OBS_STREAMS }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r ingestion/requirements.txt
+
+      - name: Run S3 File Existence Check
+        run: |
+          echo "==== Running S3 file existence check ===="
+          cd ingestion/observability
+          python 01_check_s3_files.py
+
+      - name: Run S3 Schema Drift Check
+        run: |
+          echo "==== Running Stripe schema drift check ===="
+          cd ingestion/observability
+          python 02_check_s3_schema.py
