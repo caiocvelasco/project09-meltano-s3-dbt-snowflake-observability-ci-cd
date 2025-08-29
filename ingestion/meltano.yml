@@ -1,0 +1,25 @@
+version: 1
+default_environment: dev
+project_id: 0198d721-aef1-7dbe-87b1-25169bf545f4
+environments:
+- name: dev
+- name: staging
+- name: prod
+plugins:
+  extractors:
+  - name: tap-stripe
+    variant: singer-io
+    pip_url: git+https://github.com/singer-io/tap-stripe.git
+    config:
+      client_secret: $TAP_STRIPE_CLIENT_SECRET
+      account_id: $TAP_STRIPE_ACCOUNT_ID
+      start_date: '2025-08-25'
+      # Use today's date since all events were created today
+  loaders:
+  - name: target-s3-csv
+    variant: transferwise
+    pip_url: git+https://github.com/transferwise/pipelinewise-target-s3-csv.git
+    config:
+      s3_bucket: s3-observability-project
+      s3_key_prefix: raw/stripe/
+      naming_convention: '{stream}-{timestamp}.csv'
