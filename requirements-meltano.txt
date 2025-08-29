@@ -1,0 +1,3 @@
+meltano
+tap-stripe
+target-s3-csv
