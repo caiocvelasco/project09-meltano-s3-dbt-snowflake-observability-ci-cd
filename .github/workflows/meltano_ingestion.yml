@@ -40,9 +40,16 @@ jobs:
           python -m venv .venv
           .venv/bin/pip install --upgrade pip
           .venv/bin/pip install -r requirements-meltano.txt
+          .venv/bin/pip install meltano
+
+      - name: Install Meltano plugins
+        working-directory: ingestion
+        run: |
+          echo "==== Installing Meltano plugins ===="
+          ../.venv/bin/meltano install
 
       - name: Run Meltano Ingestion
         working-directory: ingestion
         run: |
           echo "==== Running Meltano ingestion from Stripe to S3 ===="
-          ../.venv/bin/meltano run tap-stripe target-s3
+          ../.venv/bin/meltano run tap-stripe target-s3-csv
