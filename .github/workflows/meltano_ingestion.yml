@@ -2,8 +2,8 @@ name: Meltano Ingestion
 
 on:
   schedule:
-    # Run every day at 23:00 UTC
-    - cron: "0 23 * * *"
+    # Run every day at 23:00 Europe/Madrid (21:00 UTC)
+    - cron: "0 21 * * *"
   workflow_dispatch:
 
 jobs:
@@ -39,9 +39,11 @@ jobs:
         run: |
           python -m venv .venv
           .venv/bin/pip install --upgrade pip
+          .venv/bin/pip install meltano
           .venv/bin/pip install -r requirements.txt
 
       - name: Run Meltano Ingestion
         working-directory: ingestion
         run: |
-          .venv/bin/meltano run tap-stripe target-s3
+          echo "==== Running Meltano ingestion from Stripe to S3 ===="
+          ../.venv/bin/meltano run tap-stripe target-s3
