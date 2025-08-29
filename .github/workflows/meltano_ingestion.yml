@@ -1,0 +1,47 @@
+name: Meltano Ingestion
+
+on:
+  schedule:
+    # Run daily at 23:00 UTC
+    - cron: "0 23 * * *"
+  workflow_dispatch:
+
+jobs:
+  meltano-ingest:
+    runs-on: ubuntu-latest
+
+    env:
+      S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
+      S3_REGION: ${{ secrets.S3_REGION }}
+      S3_ACCESS_KEY_ID: ${{ secrets.S3_ACCESS_KEY_ID }}
+      S3_SECRET_ACCESS_KEY: ${{ secrets.S3_SECRET_ACCESS_KEY }}
+      TAP_STRIPE_CLIENT_SECRET: ${{ secrets.TAP_STRIPE_CLIENT_SECRET }}
+      TAP_STRIPE_ACCOUNT_ID: ${{ secrets.TAP_STRIPE_ACCOUNT_ID }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Cache pip
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install Meltano
+        run: |
+          python -m venv .venv
+          .venv/bin/pip install --upgrade pip
+          .venv/bin/pip install meltano
+
+      - name: Run Meltano Ingestion
+        run: |
+          echo "==== Starting Meltano ingestion ===="
+          .venv/bin/meltano run tap-stripe target-s3
