@@ -1,9 +1,9 @@
 name: Stripe Observability
 
 on:
-  push:
-    branches:
-      - main
+  schedule:
+    # Run daily at 23:00 Madrid time (21:00 UTC in summer, 22:00 UTC in winter)
+    - cron: "0 21 * * *"
   workflow_dispatch:
 
 jobs:
