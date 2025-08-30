@@ -14,6 +14,9 @@ pandas
 # Meltano core for orchestration and ingestion
 meltano
 
+# Stripe for API ingestion
+stripe
+
 
 # Integrating SLQ Engines
 # sqlalchemy # Because I run sql commands on a python script and because it depends on psycopg2
