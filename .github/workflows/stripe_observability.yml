@@ -33,7 +33,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements-observability.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
 
@@ -41,7 +41,7 @@ jobs:
         run: |
           python -m venv .venv
           .venv/bin/pip install --upgrade pip
-          .venv/bin/pip install -r requirements.txt
+          .venv/bin/pip install -r requirements-observability.txt
 
       - name: Run S3 File Existence Check
         run: |
