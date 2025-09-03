@@ -19,6 +19,7 @@ This project implements a complete data pipeline from data ingestion to transfor
   - [Prerequisites](#prerequisites)
   - [Environment Variables](#environment-variables)
   - [Initiate the Environment](#initiate-the-environment)
+- [Initial Setup (AWS + Snowflake)](#initial-setup-aws--snowflake)
 - [Data Ingestion Pipeline](#data-ingestion-pipeline)
 - [CI/CD Pipeline](#cicd-pipeline)
 - [Data Transformation (dbt + Snowflake)](#data-transformation-dbt--snowflake)
@@ -378,3 +379,32 @@ This project demonstrates modern data engineering best practices. Feel free to:
 ---
 
 **Project Status**: 🟡 **Phase 2 of 4 Complete** - Data ingestion and CI/CD operational, transformation layer in progress
+
+## 🧱 Initial Setup (AWS + Snowflake)
+
+High-level steps completed to enable S3 → Snowflake external tables and dbt transformations:
+
+- **AWS IAM (S3 Access Control)**
+  - Created IAM Policy granting list/get access to the S3 bucket/prefix used by Meltano and Snowflake
+  - Created IAM Role and attached the policy; configured trust for Snowflake’s external ID when needed
+  - Verified access via AWS CLI to the project bucket and prefixes
+  - See: `initial_setup/aws_access_control_IAM.md`
+
+- **Snowflake RBAC (Secure Access Model)**
+  - Created custom roles (e.g., `STORAGE_ADMIN`, `DBT_ROLE`) and assigned least-privilege grants
+  - Created service users (e.g., `DBT_USER`) and mapped to roles/warehouses
+  - Granted usage on warehouse, database, schemas, and objects required by dbt and external tables
+  - See: `initial_setup/snowflake_RBAC.md`
+
+- **Snowflake ↔ S3 Integration**
+  - Configured Snowflake STORAGE INTEGRATION to securely assume the AWS IAM Role
+  - Created FILE FORMAT for Parquet/CSV and defined External STAGE pointing to S3 path
+  - Validated integration by listing stage and previewing files
+  - See: `initial_setup/snowflake_s3_storage_integration_ext_stage.sql`
+
+- **External Tables Foundation (Bronze Layer)**
+  - dbt External Tables configured to reference the External STAGE
+  - Next command to (re)create external tables: `dbt run-operation stage_external_sources`
+  - Downstream `dbt run` materializes Silver/Gold models in Snowflake
+
+These steps are reflected operationally in `my_dbt_project/snowflake_up_to_ext_tables.ipynb` and underpin the dbt + Snowflake section below.
